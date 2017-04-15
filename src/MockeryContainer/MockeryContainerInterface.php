@@ -4,8 +4,9 @@ declare(strict_types = 1);
 namespace MockeryContainer;
 
 use Mockery\MockInterface;
+use Psr\Container\ContainerInterface;
 
-interface MockeryContainerInterface
+interface MockeryContainerInterface extends ContainerInterface
 {
     /**
      * @param string $id
