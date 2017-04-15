@@ -24,7 +24,7 @@ install:
   - if [ "$deps" = "low" ]; then composer --ignore-platform-reqs --prefer-lowest -n --prefer-stable --prefer-dist update; fi;
 
 script:
-  - vendor/bin/phpmd src/ text cleancode, codesize, controversial, design, naming, unusedcode
+  - vendor/bin/phpmd src/ text codesize, controversial, design, naming, unusedcode
   - vendor/bin/phpstan analyse src --level 5
   - vendor/bin/phpcs src --standard=psr2
   - vendor/bin/phpunit
