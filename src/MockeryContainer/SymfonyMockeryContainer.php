@@ -4,36 +4,26 @@ declare(strict_types = 1);
 namespace MockeryContainer;
 
 use Mockery\MockInterface;
-use MockeryContainer\Exception\NotFoundException;
+use MockeryContainer\Registry\MockRegistry;
 use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+/**
+ * Due to how Symfony will 'compile' this we need to use a static
+ */
 class SymfonyMockeryContainer extends Container implements MockeryContainerInterface
 {
-    use MockeryContainerTrait;
-
-    /**
-     * @param ParameterBagInterface|null $parameterBag
-     */
-    public function __construct(ParameterBagInterface $parameterBag = null)
-    {
-        $this->mockeryContainer = new MockeryContainer();
-
-        parent::__construct($parameterBag);
-    }
+    private static $mockRegistry;
 
     /**
      * {@inheritdoc}
      */
     public function get($id, $invalidBehavior = self::EXCEPTION_ON_INVALID_REFERENCE)
     {
-        try {
-            $service = $this->mockeryContainer->get($id);
-        } catch (NotFoundException $e) {
-            $service = parent::get($id);
+        if (self::getMockRegistry()->has($id)) {
+            return self::getMockRegistry()->get($id);
         }
 
-        return $service;
+        return parent::get($id);
     }
 
     /**
@@ -41,10 +31,38 @@ class SymfonyMockeryContainer extends Container implements MockeryContainerInter
      */
     public function has($id)
     {
-        if ($this->mockeryContainer->has($id)) {
+        if (self::getMockRegistry()->has($id)) {
             return true;
         }
 
         return parent::has($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function mock(string $id, ...$args): MockInterface
+    {
+        $mock = call_user_func_array([\Mockery::class, 'mock'], $args);
+        self::getMockRegistry()->set($id, $mock);
+
+        return $mock;
+    }
+
+    private static function getMockRegistry(): MockRegistry
+    {
+        if (null === self::$mockRegistry) {
+            self::$mockRegistry = new MockRegistry();
+        }
+
+        return self::$mockRegistry;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function __destruct()
+    {
+        self::$mockRegistry = null;
     }
 }

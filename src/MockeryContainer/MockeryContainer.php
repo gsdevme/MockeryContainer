@@ -52,12 +52,4 @@ class MockeryContainer implements ContainerInterface, MockeryContainerInterface
 
         return $mock;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __destruct()
-    {
-        unset($this->mockRegistry);
-    }
 }
