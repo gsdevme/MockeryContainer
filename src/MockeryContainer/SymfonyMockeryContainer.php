@@ -47,5 +47,4 @@ class SymfonyMockeryContainer extends Container implements MockeryContainerInter
 
         return parent::has($id);
     }
-
 }
