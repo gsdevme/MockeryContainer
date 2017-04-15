@@ -9,7 +9,7 @@ interface MockeryContainerInterface
 {
     /**
      * @param string $id
-     * @param array ...$args
+     * @param $args
      * @return MockInterface
      */
     public function mock(string $id, ...$args): MockInterface;

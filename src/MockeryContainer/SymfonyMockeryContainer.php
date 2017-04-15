@@ -3,17 +3,13 @@ declare(strict_types = 1);
 
 namespace MockeryContainer;
 
+use Mockery\MockInterface;
 use MockeryContainer\Exception\NotFoundException;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class SymfonyMockeryContainer extends Container implements MockeryContainerInterface
 {
-    use MockeryContainerMockTrait;
-
-    /**
-     * @var MockeryContainer
-     */
     private $mockeryContainer;
 
     /**
@@ -50,5 +46,15 @@ class SymfonyMockeryContainer extends Container implements MockeryContainerInter
         }
 
         return parent::has($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function mock(string $id, ...$args): MockInterface
+    {
+        array_unshift($args, $id);
+
+        return call_user_func_array([$this->mockeryContainer, 'mock'], $args);
     }
 }

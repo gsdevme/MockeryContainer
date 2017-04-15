@@ -4,12 +4,15 @@ matrix:
   include:
     - php: 7.1
       env: deps=low
-    - php: hhvm
-      env: deps=low
-    - php: hhvm
     - php: 7.1
+    - php: nightly
 
 sudo: false
+
+env:
+  global:
+    - SYMFONY_DEPRECATIONS_HELPER=strict
+    - deps=standard
 
 cache:
   directories:
@@ -17,9 +20,12 @@ cache:
 
 install:
   - composer self-update -q
-  - if [ "$deps" = "no" ]; then composer --prefer-stable --prefer-dist -n update; fi;
-  - if [ "$deps" = "low" ]; then composer --prefer-lowest -n --prefer-stable --prefer-dist update; fi;
+  - if [ "$deps" = "standard" ]; then composer --ignore-platform-reqs --prefer-stable --prefer-dist -n update; fi;
+  - if [ "$deps" = "low" ]; then composer --ignore-platform-reqs --prefer-lowest -n --prefer-stable --prefer-dist update; fi;
 
 script:
   - vendor/bin/phpmd src/ text cleancode, codesize, controversial, design, naming, unusedcode
+  - vendor/bin/phpstan analyse src --level 5
+  - vendor/bin/phpcs src --standard=psr2
   - vendor/bin/phpunit
+

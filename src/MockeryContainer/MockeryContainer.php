@@ -3,23 +3,17 @@ declare(strict_types = 1);
 
 namespace MockeryContainer;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use MockeryContainer\Exception\NotFoundException;
-use Mockery\MockInterface;
+use MockeryContainer\Registry\MockRegistry;
 use Psr\Container\ContainerInterface;
 
 class MockeryContainer implements ContainerInterface, MockeryContainerInterface
 {
     use MockeryContainerMockTrait;
 
-    /**
-     * @var ArrayCollection
-     */
-    private $services;
-
     public function __construct()
     {
-        $this->services = new ArrayCollection();
+        $this->mockRegistry = new MockRegistry();
     }
 
     /**
@@ -27,7 +21,7 @@ class MockeryContainer implements ContainerInterface, MockeryContainerInterface
      */
     public function get($id)
     {
-        $service = $this->services->get($id);
+        $service = $this->mockRegistry->get($id);
 
         if (null === $service) {
             throw new NotFoundException(sprintf('Service %s not found within the container', $id));
@@ -41,14 +35,6 @@ class MockeryContainer implements ContainerInterface, MockeryContainerInterface
      */
     public function has($id): bool
     {
-        return $this->services->containsKey($id);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function mock(string $id, ...$args): MockInterface
-    {
-        // TODO: Implement mock() method.
+        return $this->mockRegistry->has($id);
     }
 }
